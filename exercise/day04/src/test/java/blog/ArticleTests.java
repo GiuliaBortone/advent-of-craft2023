@@ -1,71 +1,51 @@
 package blog;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ArticleTests {
-    @Test
-    void it_should_add_valid_comment() throws CommentAlreadyExistException {
-        var article = new Article(
+
+    private final String text = "Amazing article !!!";
+    private final String differentText = "Not amazing article !!!";
+    private final String author = "Pablo Escobar";
+
+    private Article article;
+    @BeforeEach
+    void articleCreation() {
+        article = new Article(
                 "Lorem Ipsum",
                 "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
         );
-
-        article.addComment("Amazing article !!!", "Pablo Escobar");
     }
 
     @Test
-    void it_should_add_a_comment_with_the_given_text() throws CommentAlreadyExistException {
-        var article = new Article(
-                "Lorem Ipsum",
-                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-        );
-
-        var text = "Amazing article !!!";
-        article.addComment(text, "Pablo Escobar");
-
-        assertThat(article.getComments())
-                .hasSize(1)
-                .anyMatch(comment -> comment.text().equals(text));
+    void itShouldAddOneCommentToArticleWithGivenTextAndAuthor() throws CommentAlreadyExistException {
+        article.addComment(text, author);
+        assertThat(article.getComments()).hasSize(1);
+        assertThat(article.getComments().get(0).text()).isEqualTo(text);
+        assertThat(article.getComments().get(0).author()).isEqualTo(author);
     }
 
     @Test
-    void it_should_add_a_comment_with_the_given_author() throws CommentAlreadyExistException {
-        var article = new Article(
-                "Lorem Ipsum",
-                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-        );
+    void itShouldAddASecondCommentWhenOneDifferentCommentAlreadyPresent() throws CommentAlreadyExistException {
+        article.addComment(text, author);
+        article.addComment(differentText, author);
 
-        var author = "Pablo Escobar";
-        article.addComment("Amazing article !!!", author);
-
-        assertThat(article.getComments())
-                .hasSize(1)
-                .anyMatch(comment -> comment.author().equals(author));
+        assertThat(article.getComments()).hasSize(2);
+        assertThat(article.getComments().getLast().text()).isEqualTo(differentText);
+        assertThat(article.getComments().getLast().author()).isEqualTo(author);
     }
 
     @Test
-    void it_should_add_a_comment_with_the_date_of_the_day() throws CommentAlreadyExistException {
-        var article = new Article(
-                "Lorem Ipsum",
-                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-        );
-
-        article.addComment("Amazing article !!!", "Pablo Escobar");
-    }
-
-    @Test
-    void it_should_throw_an_exception_when_adding_existing_comment() throws CommentAlreadyExistException {
-        var article = new Article(
-                "Lorem Ipsum",
-                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-        );
-        article.addComment("Amazing article !!!", "Pablo Escobar");
+    void itShouldThrowExceptionWhenAddingSecondCommentWhenSameCommentAlreadyPresent() throws CommentAlreadyExistException {
+        article.addComment(text, author);
 
         assertThatThrownBy(() -> {
-            article.addComment("Amazing article !!!", "Pablo Escobar");
+            article.addComment(text, author);
         }).isInstanceOf(CommentAlreadyExistException.class);
     }
 }

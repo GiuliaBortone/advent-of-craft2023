@@ -9,7 +9,8 @@ public record Person(String firstName, String lastName, List<Pet> pets) {
     }
 
     public Person addPet(PetType petType, String name, int age) {
-        pets.add(new Pet(petType, name, age));
+        Pet newPet = new Pet(petType, name, age);
+        pets.add(newPet);
         return this;
     }
 }

@@ -1,6 +1,5 @@
 package blog;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ArticleTests {
 
     private final String text = "Amazing article !!!";
-    private final String differentText = "Not amazing article !!!";
     private final String author = "Pablo Escobar";
 
     private Article article;
@@ -33,6 +31,7 @@ class ArticleTests {
     @Test
     void itShouldAddASecondCommentWhenOneDifferentCommentAlreadyPresent() throws CommentAlreadyExistException {
         article.addComment(text, author);
+        String differentText = "Not amazing article !!!";
         article.addComment(differentText, author);
 
         assertThat(article.getComments()).hasSize(2);
@@ -44,8 +43,6 @@ class ArticleTests {
     void itShouldThrowExceptionWhenAddingSecondCommentWhenSameCommentAlreadyPresent() throws CommentAlreadyExistException {
         article.addComment(text, author);
 
-        assertThatThrownBy(() -> {
-            article.addComment(text, author);
-        }).isInstanceOf(CommentAlreadyExistException.class);
+        assertThatThrownBy(() -> article.addComment(text, author)).isInstanceOf(CommentAlreadyExistException.class);
     }
 }

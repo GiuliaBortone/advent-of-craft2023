@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
-import static java.util.Comparator.comparingInt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PopulationTests {

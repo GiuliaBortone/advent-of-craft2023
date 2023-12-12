@@ -5,8 +5,11 @@ import people.Pet;
 import people.PetType;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static java.lang.Integer.MAX_VALUE;
 import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
 import static java.util.Comparator.comparingInt;
@@ -40,7 +43,7 @@ class PopulationTests {
 
     @Test
     void peopleWithTheirPets() {
-        final var response = formatPopulation();
+        final var response = populationFormatter();
 
         assertThat(response)
                 .hasToString("Peter Griffin who owns : Tabby " + lineSeparator() +
@@ -53,42 +56,48 @@ class PopulationTests {
                         "Glenn Quagmire");
     }
 
-    private static StringBuilder formatPopulation() {
-        final var response = new StringBuilder();
+    private static String populationFormatter() {
+        return population.stream()
+                .map(PopulationTests::personFormatter)
+                .collect(Collectors.joining(lineSeparator()));
+    }
 
-        for (var person : population) {
-            response.append(format("%s %s", person.firstName(), person.lastName()));
+    private static String personFormatter(Person person) {
+        String formattedPerson = format("%s %s", person.firstName(), person.lastName());
 
-            if (!person.pets().isEmpty()) {
-                response.append(" who owns : ");
-            }
+        if (person.pets().isEmpty())
+            return formattedPerson;
 
-            for (var pet : person.pets()) {
-                response.append(pet.name()).append(" ");
-            }
+        return formattedPerson + " who owns : " + petsFormatter(person);
+    }
 
-            if (!population.getLast().equals(person)) {
-                response.append(lineSeparator());
-            }
-        }
-        return response;
+    private static String petsFormatter(Person person) {
+        return person.pets().stream()
+                .map(Pet::name)
+                .map(text -> text + " ")
+                .collect(Collectors.joining());
     }
 
     @Test
     void whoOwnsTheYoungestPet() {
-        var filtered = population.stream()
-                .min(comparingInt(PopulationTests::youngestPetAgeOfThePerson))
-                .orElse(null);
+        var personWithYoungestPet = findPersonWithYoungestPet();
 
-        assert filtered != null;
-        assertThat(filtered.firstName()).isEqualTo("Lois");
+        assert personWithYoungestPet != null;
+        assertThat(personWithYoungestPet.firstName()).isEqualTo("Lois");
     }
 
-    private static int youngestPetAgeOfThePerson(Person person) {
+    private Person findPersonWithYoungestPet() {
+        return population
+                .stream()
+                .min(Comparator.comparingInt(this::findYoungestPetFor))
+                .orElse(null);
+    }
+
+    private int findYoungestPetFor(Person person) {
         return person.pets()
                 .stream()
                 .mapToInt(Pet::age)
                 .min()
-                .orElse(Integer.MAX_VALUE);
+                .orElse(MAX_VALUE);
     }
 }

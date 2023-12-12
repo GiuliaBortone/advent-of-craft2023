@@ -17,47 +17,54 @@ public class Pipeline {
     }
 
     public void run(Project project) {
-        boolean testsPassed;
-        boolean deploySuccessful;
-
-        if (project.hasTests()) {
-            if ("success".equals(project.runTests())) {
-                log.info("Tests passed");
-                testsPassed = true;
-            } else {
-                log.error("Tests failed");
-                testsPassed = false;
-            }
-        } else {
+        if (!project.hasTests()) {
             log.info("No tests");
-            testsPassed = true;
+            deploymentMessageHandler(project);
+            return;
         }
 
-        if (testsPassed) {
-            if ("success".equals(project.deploy())) {
-                log.info("Deployment successful");
-                deploySuccessful = true;
-            } else {
-                log.error("Deployment failed");
-                deploySuccessful = false;
-            }
-        } else {
-            deploySuccessful = false;
-        }
+        whenProjectHasTests(project);
+    }
 
-        if (config.sendEmailSummary()) {
-            log.info("Sending email");
-            if (testsPassed) {
-                if (deploySuccessful) {
-                    emailer.send("Deployment completed successfully");
-                } else {
-                    emailer.send("Deployment failed");
-                }
-            } else {
-                emailer.send("Tests failed");
-            }
-        } else {
+    private boolean runTestsWasNotSuccessful(Project project) {
+        return !"success".equals(project.runTests());
+    }
+
+    private void whenProjectHasTests(Project project) {
+        if (runTestsWasNotSuccessful(project)) {
+            log.error("Tests failed");
+            sendEmailWithMessage("Tests failed");
+            return;
+        }
+        String testPassingMessage = "Tests passed";
+        log.info(testPassingMessage);
+        deploymentMessageHandler(project);
+    }
+
+    private void deploymentMessageHandler(Project project) {
+        if (deployWasNotSuccessful(project)) {
+            log.error("Deployment failed");
+            sendEmailWithMessage("Deployment failed");
+            return;
+        }
+        log.info("Deployment successful");
+        sendEmailWithMessage("Deployment completed successfully");
+    }
+
+    private static boolean deployWasNotSuccessful(Project project) {
+        return !"success".equals(project.deploy());
+    }
+
+    private void sendEmailWithMessage(String message) {
+        if (sendEmailIsDisabled()) {
             log.info("Email disabled");
+            return;
         }
+        log.info("Sending email");
+        emailer.send(message);
+    }
+
+    private boolean sendEmailIsDisabled() {
+        return !config.sendEmailSummary();
     }
 }

@@ -1,14 +1,14 @@
 package games;
 
-public class FizzBuzz {
-    public static final int MIN = 0;
-    public static final int MAX = 100;
-    public static final int FIZZ = 3;
-    public static final int BUZZ = 5;
-    public static final int FIZZBUZZ = 15;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-    private FizzBuzz() {
-    }
+public class FizzBuzz {
+    private static final int MAX = 100;
+    private static final int MIN = 0;
+    private static final Map<Integer, String> fizzBuzzRules = (Map.of(3, "Fizz", 5, "Buzz"));
 
     public static String convert(Integer input) throws OutOfRangeException {
         if (isOutOfRange(input)) {
@@ -18,20 +18,27 @@ public class FizzBuzz {
     }
 
     private static String convertSafely(Integer input) {
-        if (is(FIZZBUZZ, input)) {
-            return "FizzBuzz";
+        List<Integer> filteredAndOrderedKeys = filterAndOrderKeys(input);
+
+        if (filteredAndOrderedKeys.isEmpty()) {
+            return input.toString();
         }
-        if (is(FIZZ, input)) {
-            return "Fizz";
-        }
-        if (is(BUZZ, input)) {
-            return "Buzz";
-        }
-        return input.toString();
+
+        return buildStringFromAcceptableKeys(filteredAndOrderedKeys);
     }
 
-    private static boolean is(Integer divisor, Integer input) {
-        return input % divisor == 0;
+    private static List<Integer> filterAndOrderKeys(Integer input) {
+        var filteredKeys = new ArrayList<>(fizzBuzzRules.keySet().stream().filter(value -> input % value == 0).toList());
+        Collections.sort(filteredKeys);
+
+        return filteredKeys;
+    }
+
+    private static String buildStringFromAcceptableKeys(List<Integer> filteredAndOrderedKeys) {
+        StringBuilder result = new StringBuilder();
+        filteredAndOrderedKeys.forEach(key -> result.append(fizzBuzzRules.get(key)));
+
+        return result.toString();
     }
 
     private static boolean isOutOfRange(Integer input) {

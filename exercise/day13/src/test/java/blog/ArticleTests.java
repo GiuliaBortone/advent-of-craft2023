@@ -1,8 +1,13 @@
 package blog;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -10,50 +15,35 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ArticleTests {
     public static final String AUTHOR = "Pablo Escobar";
     private static final String COMMENT_TEXT = "Amazing article !!!";
-    private Article article;
-
-    @BeforeEach
-    void setup() {
-        article = new Article(
-                "Lorem Ipsum",
-                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-        );
-    }
+    private static final LocalDate anyDate = LocalDate.of(2023, 12, 13);
 
     @Test
     void should_add_comment_in_an_article() throws CommentAlreadyExistException {
-        article.addComment(COMMENT_TEXT, AUTHOR);
+        Article article = new Article("any name", "any comment");
+        Comment newComment = new Comment(COMMENT_TEXT, AUTHOR, anyDate);
 
-        assertThat(article.getComments()).hasSize(1);
-
-        var comment = article.getComments().get(0);
-        assertThat(comment.text()).isEqualTo(COMMENT_TEXT);
-        assertThat(comment.author()).isEqualTo(AUTHOR);
+        assertThat(article.add(newComment)).isEqualTo(newComment);
     }
 
     @Test
     void should_add_comment_in_an_article_containing_already_a_comment() throws CommentAlreadyExistException {
-        var newComment = "Finibus Bonorum et Malorum";
-        var newAuthor = "Al Capone";
+        ArrayList<Comment> comments = new ArrayList<>(List.of(new Comment(COMMENT_TEXT, AUTHOR, anyDate)));
+        Article article = new Article("any name", "any content", comments);
+        Comment newComment = new Comment("Finibus Bonorum et Malorum", "Al Capone", anyDate);
 
-        article.addComment(COMMENT_TEXT, AUTHOR);
-        article.addComment(newComment, newAuthor);
-
-        assertThat(article.getComments()).hasSize(2);
-
-        var lastComment = article.getComments().getLast();
-        assertThat(lastComment.text()).isEqualTo(newComment);
-        assertThat(lastComment.author()).isEqualTo(newAuthor);
+        assertThat(article.add(newComment)).isEqualTo(newComment);
     }
 
     @Nested
     class Fail {
         @Test
-        void when_adding_an_existing_comment() throws CommentAlreadyExistException {
-            article.addComment(COMMENT_TEXT, AUTHOR);
+        void when_adding_an_existing_comment() {
+            Comment duplicateComment = new Comment(COMMENT_TEXT, AUTHOR, anyDate);
+            ArrayList<Comment> comments = new ArrayList<>(List.of(duplicateComment));
+            Article article = new Article("any name", "any content", comments);
 
             assertThatThrownBy(() -> {
-                article.addComment(COMMENT_TEXT, AUTHOR);
+                article.add(duplicateComment);
             }).isInstanceOf(CommentAlreadyExistException.class);
         }
     }

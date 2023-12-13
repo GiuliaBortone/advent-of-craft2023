@@ -26,4 +26,17 @@ class ClientTests {
                         "Interstellar for 23.98€" + lineSeparator() +
                         "Total : 130.97€");
     }
+
+    @Test
+    void printing_statement_two_times_should_return_same_amount() {
+        callToStatementFor(2, client);
+
+        assertThat(client.getTotalAmount()).isEqualTo(130.97);
+    }
+
+    private void callToStatementFor(int times, Client client) {
+        for (int i = 0; i < times; i++) {
+            client.toStatement();
+        }
+    }
 }

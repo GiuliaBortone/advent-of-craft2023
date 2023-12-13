@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class GreeterTest {
     @Test
     void saysHello() {
-        var greeter = new Greeter();
+        var greeter = GreeterFactory.identifyAndCreate();
 
         assertThat(greeter.greet())
                 .isEqualTo("Hello.");
@@ -15,8 +15,7 @@ class GreeterTest {
 
     @Test
     void saysHelloFormally() {
-        var greeter = new Greeter();
-        greeter.setFormality("formal");
+        var greeter = GreeterFactory.identifyAndCreate("formal");
 
         assertThat(greeter.greet())
                 .isEqualTo("Good evening, sir.");
@@ -24,8 +23,7 @@ class GreeterTest {
 
     @Test
     void saysHelloCasually() {
-        var greeter = new Greeter();
-        greeter.setFormality("casual");
+        var greeter = GreeterFactory.identifyAndCreate("casual");
 
         assertThat(greeter.greet())
                 .isEqualTo("Sup bro?");
@@ -33,8 +31,7 @@ class GreeterTest {
 
     @Test
     void saysHelloIntimately() {
-        var greeter = new Greeter();
-        greeter.setFormality("intimate");
+        var greeter = GreeterFactory.identifyAndCreate("intimate");
 
         assertThat(greeter.greet())
                 .isEqualTo("Hello Darling!");

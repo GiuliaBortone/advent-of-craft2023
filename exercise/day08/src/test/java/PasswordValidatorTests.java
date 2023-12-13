@@ -1,4 +1,3 @@
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -47,7 +46,6 @@ public class PasswordValidatorTests {
     }
 
     @Test
-    @Disabled
     void everythingOKExceptOtherSpecialCharacterPresentShouldReturnFalse() {
         assertThat(passwordValidator.isValid("numb3rPassw*rd?")).isFalse();
     }

@@ -1,11 +1,18 @@
+import java.util.Arrays;
 import java.util.List;
 
 public class PasswordValidator {
     private final List<String> acceptableSpecialCharacters = List.of(".", "*", "#", "@", "$", "%", "&");
+    private final int minimumLength = 8;
 
     public boolean isValid(String passwordToValidate) {
-        return isAtLeastEightCharacters(passwordToValidate)
-                && hasAtLeastOneUpperCaseLetter(passwordToValidate)
+        return isAtLeastEightCharactersLong(passwordToValidate)
+                && checkValidCharactersType(passwordToValidate)
+                && doesNotHaveOtherSpecialCharacters(passwordToValidate);
+    }
+
+    private boolean checkValidCharactersType(String passwordToValidate) {
+        return hasAtLeastOneUpperCaseLetter(passwordToValidate)
                 && hasAtLeastOneLowerCaseLetter(passwordToValidate)
                 && hasAtLeastOneNumber(passwordToValidate)
                 && hasAtLeastOneSpecialCharacter(passwordToValidate);
@@ -23,16 +30,18 @@ public class PasswordValidator {
         return !passwordToValidate.toLowerCase().equals(passwordToValidate);
     }
 
-    private boolean isAtLeastEightCharacters(String passwordToValidate) {
-        return passwordToValidate.length() >= 8;
+    private boolean isAtLeastEightCharactersLong(String passwordToValidate) {
+        return passwordToValidate.length() >= minimumLength;
     }
 
     private boolean hasAtLeastOneSpecialCharacter(String passwordToValidate) {
-        for (String acceptableSpecialCharacter : acceptableSpecialCharacters) {
-            if (passwordToValidate.contains(acceptableSpecialCharacter)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(passwordToValidate.split("")).anyMatch(acceptableSpecialCharacters::contains);
+    }
+
+    private boolean doesNotHaveOtherSpecialCharacters(String passwordToValidate) {
+        return Arrays.stream(passwordToValidate.split("")).allMatch(character -> hasAtLeastOneUpperCaseLetter(character)
+                || hasAtLeastOneLowerCaseLetter(character)
+                || hasAtLeastOneNumber(character)
+                || hasAtLeastOneSpecialCharacter(character));
     }
 }
